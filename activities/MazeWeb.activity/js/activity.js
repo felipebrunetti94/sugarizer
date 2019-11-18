@@ -1,17 +1,4 @@
 define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar-web/graphics/presencepalette", "sugar-web/env",  "sugar-web/graphics/icon", "webL10n", "sugar-web/graphics/palette", "rot", "humane"], function (activity, TWEEN, rAF, directions, presencepalette, env, icon, webL10n, palette, ROT, humane) {
-
-    // Resize screen
-  document.getElementById("fullscreen-button").addEventListener('click', function() {
-    console.log('RESIZE')    
-    document.getElementById("main-toolbar").style.opacity = 0;
-    document.getElementById("canvas").style.top = "0px";
-    document.getElementById("unfullscreen-button").style.visibility = "visible";
-  });
-  document.getElementById("unfullscreen-button").addEventListener('click', function() {
-    document.getElementById("main-toolbar").style.opacity = 1;
-    document.getElementById("canvas").style.top = "55px";
-    document.getElementById("unfullscreen-button").style.visibility = "hidden";
-  });  
   
   requirejs(['domReady!'], function (doc) {
         activity.setup();
@@ -42,7 +29,6 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
 
             // Shared instances
             if (environment.sharedId) {
-                console.log("Shared instance");
                 presence = activity.getPresenceObject(function(error, network) {
                     network.onDataReceived(onNetworkDataReceived);
                     network.onSharedActivityUserChanged(onNetworkUserChanged);
@@ -190,7 +176,19 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
             drawMaze();
         };
         window.addEventListener('resize', onWindowResize);
-
+    // Resize screen
+    document.getElementById("fullscreen-button").addEventListener('click', function() {
+      document.getElementById("main-toolbar").style.display = "none";
+      document.getElementById("canvas").style.top = "0px";
+      document.getElementById("unfullscreen-button").style.display = "inline-block";
+      onWindowResize();
+    });
+    document.getElementById("unfullscreen-button").addEventListener('click', function() {
+      document.getElementById("main-toolbar").style.display = "block";
+      document.getElementById("canvas").style.top = "55px";
+      document.getElementById("unfullscreen-button").style.display = "none";
+      onWindowResize();
+    });  
         var updateSprites = function () {
             for (control in controls) {
                 if (control in controlColors) {
@@ -897,14 +895,11 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
         var palette = new presencepalette.PresencePalette(document.getElementById("network-button"), undefined);
         palette.addEventListener('shared', function() {
             palette.popDown();
-            console.log("Want to share");
             presence = activity.getPresenceObject(function(error, network) {
                 if (error) {
-                    console.log("Sharing error");
                     return;
                 }
                 network.createSharedActivity('org.sugarlabs.MazeWebActivity', function(groupId) {
-                    console.log("Activity shared");
                     isHost = true;
                     presence.sendMessage(presence.getSharedInfo().id, {
                         user: presence.getUserInfo(),
